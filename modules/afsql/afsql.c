@@ -1056,7 +1056,7 @@ afsql_dd_database_thread(gpointer arg)
   AFSqlDestDriver *self = (AFSqlDestDriver *) arg;
 
   msg_verbose("Database thread started",
-              evt_tag_str("driver", self->super.super.id));
+              evt_tag_str("driver", self->super.super.super.id));
   while (!self->db_thread_terminate)
     {
       main_loop_worker_run_gc();
@@ -1124,7 +1124,7 @@ exit:
   afsql_dd_disconnect(self);
 
   msg_verbose("Database thread finished",
-              evt_tag_str("driver", self->super.super.id));
+              evt_tag_str("driver", self->super.super.super.id));
 }
 
 static void
@@ -1209,7 +1209,7 @@ afsql_dd_init(LogPipe *s)
   stats_lock();
   {
     StatsClusterKey sc_key;
-    stats_cluster_logpipe_key_set(&sc_key, SCS_SQL | SCS_DESTINATION, self->super.super.id,
+    stats_cluster_logpipe_key_set(&sc_key, SCS_SQL | SCS_DESTINATION, self->super.super.super.id,
                                   afsql_dd_format_stats_instance(self) );
     stats_register_counter(0, &sc_key, SC_TYPE_QUEUED, &self->queued_messages);
     stats_register_counter(0, &sc_key, SC_TYPE_DROPPED, &self->dropped_messages);
@@ -1221,7 +1221,7 @@ afsql_dd_init(LogPipe *s)
   if (!self->seq_num)
     init_sequence_number(&self->seq_num);
 
-  self->queue = log_dest_driver_acquire_queue(&self->super,
+  self->queue = log_dest_driver_acquire_queue(&self->super.super,
                                               afsql_dd_format_persist_name((const LogPipe *)self));
   if (self->queue == NULL)
     {
@@ -1341,7 +1341,7 @@ error:
   stats_lock();
   {
     StatsClusterKey sc_key;
-    stats_cluster_logpipe_key_set(&sc_key, SCS_SQL | SCS_DESTINATION, self->super.super.id,
+    stats_cluster_logpipe_key_set(&sc_key, SCS_SQL | SCS_DESTINATION, self->super.super.super.id,
                                   afsql_dd_format_stats_instance(self) );
     stats_unregister_counter(&sc_key, SC_TYPE_QUEUED, &self->queued_messages);
     stats_unregister_counter(&sc_key, SC_TYPE_DROPPED, &self->dropped_messages);
@@ -1365,7 +1365,7 @@ afsql_dd_deinit(LogPipe *s)
 
   stats_lock();
   StatsClusterKey sc_key;
-  stats_cluster_logpipe_key_set(&sc_key, SCS_SQL | SCS_DESTINATION, self->super.super.id,
+  stats_cluster_logpipe_key_set(&sc_key, SCS_SQL | SCS_DESTINATION, self->super.super.super.id,
                                 afsql_dd_format_stats_instance(self) );
   stats_unregister_counter(&sc_key, SC_TYPE_QUEUED, &self->queued_messages);
   stats_unregister_counter(&sc_key, SC_TYPE_DROPPED, &self->dropped_messages);
@@ -1437,11 +1437,11 @@ afsql_dd_new(GlobalConfig *cfg)
 
   log_dest_driver_init_instance(&self->super, cfg);
 
-  self->super.super.super.init = afsql_dd_init;
-  self->super.super.super.deinit = afsql_dd_deinit;
-  self->super.super.super.queue = afsql_dd_queue;
-  self->super.super.super.free_fn = afsql_dd_free;
-  self->super.super.super.generate_persist_name = afsql_dd_format_persist_name;
+  self->super.super.super.super.init = afsql_dd_init;
+  self->super.super.super.super.deinit = afsql_dd_deinit;
+  self->super.super.super.super.queue = afsql_dd_queue;
+  self->super.super.super.super.free_fn = afsql_dd_free;
+  self->super.super.super.super.generate_persist_name = afsql_dd_format_persist_name;
 
   self->type = g_strdup("mysql");
   self->host = g_strdup("");
@@ -1473,7 +1473,7 @@ afsql_dd_new(GlobalConfig *cfg)
   self->db_thread_mutex = g_mutex_new();
 
   self->worker_options.is_output_thread = TRUE;
-  return &self->super.super;
+  return &self->super.super.super;
 }
 
 gint
