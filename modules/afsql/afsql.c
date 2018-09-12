@@ -927,7 +927,7 @@ afsql_dd_insert(LogThreadedDestDriver *s, LogMessage *msg)
 
   if (afsql_dd_should_begin_new_transaction(self) && !afsql_dd_begin_transaction(self))
     goto error;
-  
+
   if (!afsql_dd_run_insert_query(self, table, msg))
     {
       retval = afsql_dd_handle_insert_row_error_depending_on_connection_availability(self);
@@ -941,8 +941,8 @@ afsql_dd_insert(LogThreadedDestDriver *s, LogMessage *msg)
   else
     {
       retval = afsql_dd_is_transaction_handling_enabled(self)
-                   ? WORKER_INSERT_RESULT_QUEUED
-                   : WORKER_INSERT_RESULT_SUCCESS;
+               ? WORKER_INSERT_RESULT_QUEUED
+               : WORKER_INSERT_RESULT_SUCCESS;
     }
 
 error:
